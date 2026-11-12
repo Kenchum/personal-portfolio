@@ -1,4 +1,4 @@
-
+import { useEffect, useState } from 'react';
 import './App.css'
 
 // Student Task Manager
@@ -22,19 +22,59 @@ import securityCert from './assets/achievements/enterprise-security-certificate.
 import csharpCert from './assets/achievements/csharp-certificate.png';
 
 function App() {
+    const [activeSection, setActiveSection] = useState('home');
+    const [selectedCertificate, setSelectedCertificate] = useState(null);
+
+  useEffect(() => {
+    const sections = document.querySelectorAll('section[id]');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+            entry.target.classList.add('is-visible');
+          }
+        });
+      },
+      {
+        rootMargin: '-10% 0px -10% 0px',
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+  if (!selectedCertificate) return;
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setSelectedCertificate(null);
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyDown);
+
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown);
+  };
+}, [selectedCertificate]);
   return (
     <>
       <header className="navbar">
         <a href="#home" className="logo">
-          JPP<span>.</span>
+          Portfolio<span>.</span>
         </a>
 
         <nav className="nav-links">
-          <a href="#home">Home</a>
-          <a href="#about">About Me</a>
-          <a href="#skills">Skills</a>
-          <a href="#projects">Projects</a>
-          <a href="#achievements">Achievements</a>
+          <a href="#home" className={activeSection === 'home' ? 'active' : ''}>Home</a>
+          <a href="#about" className={activeSection === 'about' ? 'active' : ''}>About Me</a>
+          <a href="#skills" className={activeSection === 'skills' ? 'active' : ''}>Skills</a>
+          <a href="#projects" className={activeSection === 'projects' ? 'active' : ''}>Projects</a>
+          <a href="#achievements" className={activeSection === 'achievements' ? 'active' : ''}>Achievements</a>
         </nav>
 
         <a href="#contact" className="nav-contact">
@@ -84,40 +124,38 @@ function App() {
             </div>
           </div>
 
-          <div className="hero-image-area">
-            <div className="image-glow"></div>
+<div className="hero-image-area">
+  <div className="abstract-visual">
 
-            <div className="profile-frame">
-              <div className="profile-placeholder">JP</div>
+    <div className="abstract-light light-one"></div>
+    <div className="abstract-light light-two"></div>
 
-              <img
-                src="/profile.jpg"
-                alt="John Paul Pascual"
-                className="profile-photo"
-                onError={(event) => {
-                  event.currentTarget.style.display = 'none'
-                }}
-              />
-            </div>
+    <div className="abstract-glow"></div>
 
-            <div className="floating-card">
-             <span className="card-icon">✦</span>
-              <div>
-           <strong>BSIT Student</strong>
-         <p>Graduating 2026</p>
-        </div>
-        </div>
+    <div className="abstract-orbit orbit-one"></div>
+    <div className="abstract-orbit orbit-two"></div>
 
-            <div className="image-caption">
-              <span>JOHN PAUL PASCUAL</span>
-              <span>PORTFOLIO 2026</span>
-            </div>
-          </div>
+    <div className="abstract-panel"></div>
+
+    <div className="abstract-tile tile-one"></div>
+    <div className="abstract-tile tile-two"></div>
+    <div className="abstract-tile tile-three"></div>
+
+    <div className="abstract-dot dot-one"></div>
+    <div className="abstract-dot dot-two"></div>
+    <div className="abstract-dot dot-three"></div>
+
+    <div className="abstract-particle particle-one"></div>
+    <div className="abstract-particle particle-two"></div>
+    <div className="abstract-particle particle-three"></div>
+
+  </div>
+</div>
         </section>
 
 
         {/* ABOUT ME SECTION */}
-        <section className="about-section" id="about">
+        <section className="about-section reveal" id="about">
           <div className="section-heading">
             <span className="section-label">GET TO KNOW ME</span>
             <h2>About <span>Me.</span></h2>
@@ -184,7 +222,7 @@ function App() {
 
         
         {/* SKILLS SECTION */}
-        <section className="skills-section" id="skills">
+        <section className="skills-section reveal" id="skills">
           <div className="section-heading">
             <span className="section-label">WHAT I WORK WITH</span>
             <h2>My <span>Skills.</span></h2>
@@ -250,7 +288,7 @@ function App() {
           </div>
         </section>
 
-                <section className="projects-section" id="projects">
+        <section className="projects-section reveal" id="projects">
           <div className="section-heading">
             <span className="section-label">MY RECENT WORK</span>
             <h2>Featured <span>Projects.</span></h2>
@@ -319,7 +357,7 @@ function App() {
           </div>
         </section>
 
-        <section className="achievements-section" id="achievements">
+        <section className="achievements-section reveal" id="achievements">
   <div className="section-heading">
     <span className="section-label">MILESTONES & LEARNING</span>
     <h2>Certifications & <span>Achievements.</span></h2>
@@ -328,41 +366,89 @@ function App() {
 
   <div className="achievements-grid">
 
-    <div className="achievement-card">
-      <img src={htmlCssCert} alt="HTML/CSS Skill Assessment Certificate" />
-      <div className="achievement-info">
-        <span>WEB DEVELOPMENT</span>
-        <h3>HTML/CSS Skill Assessment</h3>
-        <p>TestDome</p>
-        <small>August 8, 2026</small>
-      </div>
+  <div className="achievement-card">
+    <img
+      src={htmlCssCert}
+      alt="HTML/CSS Skill Assessment Certificate"
+      onClick={() =>
+        setSelectedCertificate({
+          src: htmlCssCert,
+          alt: 'HTML/CSS Skill Assessment Certificate',
+        })
+      }
+    />
+    <div className="achievement-info">
+      <span>WEB DEVELOPMENT</span>
+      <h3>HTML/CSS Skill Assessment</h3>
+      <p>TestDome</p>
+      <small>August 8, 2026</small>
     </div>
-
-    <div className="achievement-card">
-      <img src={securityCert} alt="Fundamentals of Enterprise Security Certificate" />
-      <div className="achievement-info">
-        <span>CYBERSECURITY</span>
-        <h3>Fundamentals of Enterprise Security</h3>
-        <p>CloudSywft</p>
-        <small>April 22, 2026</small>
-      </div>
-    </div>
-
-    <div className="achievement-card">
-      <img src={csharpCert} alt="Foundational C# With Microsoft Certificate" />
-      <div className="achievement-info">
-        <span>PROGRAMMING</span>
-        <h3>Foundational C# With Microsoft</h3>
-        <p>freeCodeCamp</p>
-        <small>October 11, 2025</small>
-      </div>
-    </div>
-
   </div>
+
+  <div className="achievement-card">
+    <img
+      src={securityCert}
+      alt="Fundamentals of Enterprise Security Certificate"
+      onClick={() =>
+        setSelectedCertificate({
+          src: securityCert,
+          alt: 'Fundamentals of Enterprise Security Certificate',
+        })
+      }
+    />
+    <div className="achievement-info">
+      <span>CYBERSECURITY</span>
+      <h3>Fundamentals of Enterprise Security</h3>
+      <p>CloudSywft</p>
+      <small>April 22, 2026</small>
+    </div>
+  </div>
+
+  <div className="achievement-card">
+    <img
+      src={csharpCert}
+      alt="Foundational C# With Microsoft Certificate"
+      onClick={() =>
+        setSelectedCertificate({
+          src: csharpCert,
+          alt: 'Foundational C# With Microsoft Certificate',
+        })
+      }
+    />
+    <div className="achievement-info">
+      <span>PROGRAMMING</span>
+      <h3>Foundational C# With Microsoft</h3>
+      <p>freeCodeCamp</p>
+      <small>October 11, 2025</small>
+    </div>
+  </div>
+
+</div>
 </section>
 
+{selectedCertificate && (
+  <div
+    className="certificate-modal"
+    onClick={() => setSelectedCertificate(null)}
+  >
+    <button
+      className="certificate-modal-close"
+      onClick={() => setSelectedCertificate(null)}
+      aria-label="Close certificate preview"
+    >
+      ×
+    </button>
 
-        <section className="contact-section" id="contact">
+    <img
+      src={selectedCertificate.src}
+      alt={selectedCertificate.alt}
+      onClick={(event) => event.stopPropagation()}
+    />
+  </div>
+)}
+
+
+        <section className="contact-section reveal" id="contact">
           <div className="contact-content">
             <span className="section-label">GET IN TOUCH</span>
 
