@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css'
 
 // Student Task Manager
@@ -22,8 +22,107 @@ import securityCert from './assets/achievements/enterprise-security-certificate.
 import csharpCert from './assets/achievements/csharp-certificate.png';
 
 function App() {
-    const [activeSection, setActiveSection] = useState('home');
-    const [selectedCertificate, setSelectedCertificate] = useState(null);
+
+  const [activeSection, setActiveSection] = useState('home');
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  // Project carousel drag
+  const projectDragStartX = useRef(null);
+
+  // About Me vertical carousel
+  const aboutDetailsRef = useRef(null);
+
+  const aboutDragRef = useRef({
+    isDragging: false,
+    startY: 0,
+    scrollTop: 0,
+  });
+
+  const handleAboutPointerDown = (event) => {
+    if (event.pointerType === 'touch') return;
+
+    aboutDragRef.current = {
+      isDragging: true,
+      startY: event.clientY,
+      scrollTop: aboutDetailsRef.current.scrollTop,
+    };
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleAboutPointerMove = (event) => {
+    if (!aboutDragRef.current.isDragging) return;
+
+    const distance = event.clientY - aboutDragRef.current.startY;
+
+    aboutDetailsRef.current.scrollTop =
+      aboutDragRef.current.scrollTop - distance;
+  };
+
+  const handleAboutPointerUp = () => {
+    aboutDragRef.current.isDragging = false;
+  };
+  const scrollAboutDetails = (direction) => {
+  const container = aboutDetailsRef.current;
+  if (!container) return;
+
+  const firstCard = container.querySelector('.about-card');
+  const distance = firstCard ? firstCard.offsetHeight + 16 : 200;
+
+  container.scrollBy({
+    top: direction * distance,
+    behavior: 'smooth',
+  });
+};
+
+  // Project image groups
+  const projectImageGroups = {
+    studentTaskManager: [
+      { src: stmLogin, alt: 'Student Task Manager Login' },
+      { src: stmDashboard, alt: 'Student Task Manager Dashboard' },
+      { src: stmTasks, alt: 'Student Task Manager Tasks' },
+    ],
+
+    ubmsConnect: [
+      { src: ubmsLogin, alt: 'UBMSConnect Login' },
+      { src: ubmsDashboard, alt: 'UBMSConnect Dashboard' },
+      { src: ubmsVenue, alt: 'UBMSConnect Venue Management' },
+    ],
+
+    swiftPOS: [
+      { src: swiftLogin, alt: 'SwiftPOS Login' },
+      { src: swiftDashboard, alt: 'SwiftPOS Dashboard' },
+      { src: swiftProducts, alt: 'SwiftPOS Products' },
+    ],
+  };
+    
+    const changeProjectImage = (direction) => {
+      setSelectedProject((current) => {
+        if (!current) return current;
+
+        const imageCount = current.images.length;
+        const nextIndex = (current.index + direction + imageCount) % imageCount;
+
+        return { ...current, index: nextIndex };
+      });
+    };
+
+    const handleProjectPointerDown = (event) => {
+      projectDragStartX.current = event.clientX;
+      event.currentTarget.setPointerCapture(event.pointerId);
+    };
+
+    const handleProjectPointerUp = (event) => {
+      if (projectDragStartX.current === null) return;
+
+      const dragDistance = event.clientX - projectDragStartX.current;
+      projectDragStartX.current = null;
+
+      if (Math.abs(dragDistance) > 45) {
+        changeProjectImage(dragDistance < 0 ? 1 : -1);
+      }
+    };
 
   useEffect(() => {
     const sections = document.querySelectorAll('section[id]');
@@ -62,6 +161,26 @@ function App() {
     window.removeEventListener('keydown', handleKeyDown);
   };
 }, [selectedCertificate]);
+
+  useEffect(() => {
+    if (!selectedProject) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setSelectedProject(null);
+      } else if (event.key === 'ArrowRight') {
+        changeProjectImage(1);
+      } else if (event.key === 'ArrowLeft') {
+        changeProjectImage(-1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedProject]);
   return (
     <>
       <header className="navbar">
@@ -163,60 +282,131 @@ function App() {
           </div>
 
           <div className="about-content">
-            <div className="about-text">
-              <h3>Turning curiosity into creativity.</h3>
+            
+<div className="about-text">
+  <h3>Turning curiosity into creativity.</h3>
 
-              <p>
-                I'm John Paul Pascual, an Information Technology
-                student at La Consolacion University Philippines.
-                I have a strong interest in technology, programming,
-                and software development.
-              </p>
+  <p>
+    Hi! I'm <strong>John Paul Pascual</strong>, an Information Technology
+    student at <strong>La Consolacion University Philippines</strong>.
+  </p>
 
-              <p>
-                Throughout my academic journey, I've worked on
-                different projects that helped me develop my
-                technical skills and understand how technology
-                can solve real-world problems.
-              </p>
+  <p>
+    My interest in technology started when I was young.
+    My uncle introduced me to computers, and ever since
+    then, I've always been fascinated by them. I enjoyed
+    exploring what computers could do, and over time,
+    that curiosity grew into a deeper interest in technology.
+  </p>
 
-              <p>
-                I'm continuously learning, exploring new
-                technologies, and improving my abilities as
-                an aspiring developer.
-              </p>
-            </div>
+  <p>
+    One of the people who inspired me to explore programming
+    was Michael Reeves, a YouTuber known for creating unusual
+    and entertaining technology projects. Watching what he
+    could build made coding look exciting, and it encouraged
+    me to try creating things of my own.
+  </p>
 
-            <div className="about-details">
+  <p>
+    As I continued my journey in Information Technology,
+    I started working on different projects, from Android
+    applications to web-based systems. Each experience has
+    helped me learn something new and develop my skills
+    along the way.
+  </p>
 
-              <div className="about-card">
-                <span className="about-icon">🎓</span>
-                <div>
-                  <h4>Education</h4>
-                  <p>Bachelor of Science in Information Technology</p>
-                  <span>La Consolacion University Philippines</span>
-                </div>
-              </div>
+  <p>
+    I'm still exploring, experimenting, and discovering
+    what I'm capable of building. For me, that's what makes
+    learning technology exciting.
+  </p>
+</div>
 
-              <div className="about-card">
-                <span className="about-icon">💻</span>
-                <div>
-                  <h4>Area of Interest</h4>
-                  <p>Web and Software Development</p>
-                  <span>Building practical digital solutions</span>
-                </div>
-              </div>
+            
+<div className="about-details-shell">
+  <button
+    className="about-carousel-arrow about-carousel-arrow-up"
+    type="button"
+    onClick={() => scrollAboutDetails(-1)}
+    aria-label="Scroll up"
+  >
+    ↑
+  </button>
 
-              <div className="about-card">
-                <span className="about-icon">🚀</span>
-                <div>
-                  <h4>Current Status</h4>
-                  <p>BSIT Student</p>
-                  <span>Graduating 2026</span>
-                </div>
-              </div>
+<div
+  className="about-details"
+  ref={aboutDetailsRef}
+  onPointerDown={handleAboutPointerDown}
+  onPointerMove={handleAboutPointerMove}
+  onPointerUp={handleAboutPointerUp}
+  onPointerCancel={handleAboutPointerUp}
+>
+  <div className="about-carousel">
+    <div className="about-carousel-track">
 
-            </div>
+  {/* What Inspires Me */}
+  <div className="about-card">
+    <span className="about-icon">💡</span>
+    <div>
+      <h4>What Inspires Me</h4>
+      <p>Creative Technology and Programming</p>
+      <span>Inspired by creators like Michael Reeves</span>
+    </div>
+  </div>
+
+  {/* Education */}
+  <div className="about-card">
+    <span className="about-icon">🎓</span>
+    <div>
+      <h4>Education</h4>
+      <p>Bachelor of Science in Information Technology</p>
+      <span>La Consolacion University Philippines</span>
+    </div>
+  </div>
+
+  {/* Area of Interest */}
+  <div className="about-card">
+    <span className="about-icon">💻</span>
+    <div>
+      <h4>Area of Interest</h4>
+      <p>Web and Software Development</p>
+      <span>Building practical digital solutions</span>
+    </div>
+  </div>
+
+  {/* Current Status */}
+  <div className="about-card">
+    <span className="about-icon">🚀</span>
+    <div>
+      <h4>Current Status</h4>
+      <p>BSIT Student</p>
+      <span>Graduating 2027</span>
+    </div>
+  </div>
+
+  {/* Future Goals */}
+  <div className="about-card">
+    <span className="about-icon">🎯</span>
+    <div>
+      <h4>Future Goals</h4>
+      <p>Become a Skilled Developer</p>
+      <span>Keep learning and building useful applications</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+  <button
+    className="about-carousel-arrow about-carousel-arrow-down"
+    type="button"
+    onClick={() => scrollAboutDetails(1)}
+    aria-label="Scroll down"
+  >
+    ↓
+  </button>
+</div>
+
           </div>
         </section>
 
@@ -298,12 +488,23 @@ function App() {
           <div className="projects-grid">
 
             {/* Student Task Manager */}
-            <div className="project-card">
-              <div className="project-images">
-                <img src={stmLogin} alt="Student Task Manager Login" />
-                <img src={stmDashboard} alt="Student Task Manager Dashboard" />
-                <img src={stmTasks} alt="Student Task Manager Tasks" />
-              </div>
+              <div className="project-card">
+                <div className="project-images">
+                  {projectImageGroups.studentTaskManager.map((image, index) => (
+                    <img
+                      key={image.src}
+                      src={image.src}
+                      alt={image.alt}
+                      onClick={() =>
+                        setSelectedProject({
+                          title: 'Student Task Manager',
+                          images: projectImageGroups.studentTaskManager,
+                          index,
+                        })
+                      }
+                    />
+                  ))}
+                </div>
               <div className="project-info">
                 <span className="project-type">ANDROID APPLICATION</span>
                 <h3>Student Task Manager</h3>
@@ -319,9 +520,20 @@ function App() {
             {/* UBMSConnect */}
             <div className="project-card">
               <div className="project-images">
-                <img src={ubmsLogin} alt="UBMSConnect Login" />
-                <img src={ubmsDashboard} alt="UBMSConnect Dashboard" />
-                <img src={ubmsVenue} alt="UBMSConnect Venue Management" />
+                {projectImageGroups.ubmsConnect.map((image, index) => (
+                  <img
+                    key={image.src}
+                    src={image.src}
+                    alt={image.alt}
+                    onClick={() =>
+                      setSelectedProject({
+                        title: 'UBMSConnect',
+                        images: projectImageGroups.ubmsConnect,
+                        index,
+                      })
+                    }
+                  />
+                ))}
               </div>
               <div className="project-info">
                 <span className="project-type">WEB APPLICATION</span>
@@ -338,9 +550,20 @@ function App() {
             {/* SwiftPOS */}
             <div className="project-card">
               <div className="project-images">
-                <img src={swiftLogin} alt="SwiftPOS Login" />
-                <img src={swiftDashboard} alt="SwiftPOS Dashboard" />
-                <img src={swiftProducts} alt="SwiftPOS Products" />
+                {projectImageGroups.swiftPOS.map((image, index) => (
+                  <img
+                    key={image.src}
+                    src={image.src}
+                    alt={image.alt}
+                    onClick={() =>
+                      setSelectedProject({
+                        title: 'SwiftPOS',
+                        images: projectImageGroups.swiftPOS,
+                        index,
+                      })
+                    }
+                  />
+                ))}
               </div>
               <div className="project-info">
                 <span className="project-type">WEB APPLICATION</span>
@@ -444,6 +667,67 @@ function App() {
       alt={selectedCertificate.alt}
       onClick={(event) => event.stopPropagation()}
     />
+  </div>
+)}
+
+
+
+{selectedProject && (
+  <div
+    className="project-preview-modal"
+    onClick={() => setSelectedProject(null)}
+  >
+    <button
+      className="project-preview-close"
+      onClick={() => setSelectedProject(null)}
+      aria-label="Close project preview"
+    >
+      ×
+    </button>
+
+    <div
+      className="project-preview-content"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <h3>{selectedProject.title}</h3>
+
+      <div className="project-preview-viewer">
+        <button
+          className="project-preview-arrow"
+          onClick={() => changeProjectImage(-1)}
+          aria-label="Previous project image"
+        >
+          ‹
+        </button>
+
+        <div
+          className="project-preview-image-wrap"
+          onPointerDown={handleProjectPointerDown}
+          onPointerUp={handleProjectPointerUp}
+          onPointerCancel={() => {
+            projectDragStartX.current = null;
+          }}
+        >
+          <img
+            src={selectedProject.images[selectedProject.index].src}
+            alt={selectedProject.images[selectedProject.index].alt}
+            draggable="false"
+          />
+        </div>
+
+        <button
+          className="project-preview-arrow"
+          onClick={() => changeProjectImage(1)}
+          aria-label="Next project image"
+        >
+          ›
+        </button>
+      </div>
+
+      <p className="project-preview-counter">
+        {selectedProject.index + 1} / {selectedProject.images.length}
+      </p>
+    </div>
   </div>
 )}
 
